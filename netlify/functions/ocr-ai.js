@@ -1,96 +1,205 @@
 exports.handler = async function(event) {
 
-
     const headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Allow-Methods": "POST, OPTIONS"
     };
 
-if(event.httpMethod === "OPTIONS"){
 
-    return {
-        statusCode:200,
-        headers:headers,
-        body:""
-    };
+    // CORS预检
+    if(event.httpMethod === "OPTIONS"){
 
-}
+        return {
+            statusCode:200,
+            headers:headers,
+            body:""
+        };
 
-
-if(event.httpMethod !== "POST"){
-
-    return {
-        statusCode:405,
-        headers:headers,
-        body:"Method Not Allowed"
-    };
-
-}
-
-  try {
-    const { image } = JSON.parse(event.body || "{}");
-
-    if (!image) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "缺少图片" })
-      };
     }
 
-    const response = await fetch(
-      "https://open.bigmodel.cn/api/paas/v4/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.ZHIPU_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "glm-4.6v-flash",
-          messages: [{
-            role: "user",
-            content: [
-              {
-                type: "image_url",
-                image_url: { url: image }
-              },
-              {
-                type: "text",
-                text: "识别逆水寒帮会货运截图，只返回JSON数组：[{'itemName':'','quantity':0,'rewardPages':0}]，必须返回8条订单。"
-              }
-            ]
-          }],
-          thinking: { type: "enabled" }
-        })
-      }
-    );
 
-return {
+    if(event.httpMethod !== "POST"){
 
-    statusCode:200,
+        return {
+            statusCode:405,
+            headers:headers,
+            body:"Method Not Allowed"
+        };
 
-    headers:{
-        ...headers,
-        "Content-Type":"application/json"
-    },
+    }
 
-    body:
-    JSON.stringify(data)
 
-};
-    
-  } catch (e) {
-    return {
+    try {
 
-    statusCode:500,
 
-    headers:headers,
+        const body =
+        JSON.parse(event.body || "{}");
 
-    body:
-    JSON.stringify({
-        error:e.message
-    })
 
-};
+        const image =
+        body.image;
+
+
+        if(!image){
+
+            return {
+
+                statusCode:400,
+
+                headers:headers,
+
+                body:JSON.stringify({
+                    error:"没有收到图片"
+                })
+
+            };
+
+        }
+
+
+
+        const apiResponse =
+        await fetch(
+            "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+            {
+
+                method:"POST",
+
+                headers:{
+
+                    "Authorization":
+                    `Bearer ${process.env.ZHIPU_API_KEY}`,
+
+                    "Content-Type":
+                    "application/json"
+
+                },
+
+
+                body:JSON.stringify({
+
+                    model:"glm-4.6v-flash",
+
+
+                    messages:[
+
+                        {
+
+                            role:"user",
+
+                            content:[
+
+
+                                {
+
+                                    type:"image_url",
+
+                                    image_url:{
+
+                                        url:image
+
+                                    }
+
+                                },
+
+
+                                {
+
+                                    type:"text",
+
+                                    text:
+`
+识别这张逆水寒帮会货运截图。
+
+只返回JSON。
+
+格式：
+
+[
+ {
+  "itemName":"",
+  "quantity":0,
+  "rewardPages":0,
+  "confidence":0
+ }
+]
+
+必须返回8条订单。
+`
+
+                                }
+
+
+                            ]
+
+                        }
+
+                    ],
+
+
+                    thinking:{
+
+                        type:"enabled"
+
+                    }
+
+                })
+
+            }
+
+        );
+
+
+
+        const result =
+        await apiResponse.json();
+
+
+
+        return {
+
+            statusCode:200,
+
+            headers:{
+
+                ...headers,
+
+                "Content-Type":
+                "application/json"
+
+            },
+
+            body:
+            JSON.stringify(result)
+
+        };
+
+
+
+    }catch(error){
+
+
+        console.error(error);
+
+
+        return {
+
+            statusCode:500,
+
+            headers:headers,
+
+            body:
+            JSON.stringify({
+
+                error:error.message
+
+            })
+
+        };
+
+
+    }
+
+
 };
