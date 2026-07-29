@@ -1353,10 +1353,23 @@
             }
 
 
-            document.getElementById("ocrImageInput")
-            .addEventListener("change",function(e){
-                loadAIImage(e.target.files[0]);
-            });
+            const ocrImageInput =
+document.getElementById("ocrImageInput");
+
+
+if(ocrImageInput){
+
+    ocrImageInput.addEventListener(
+    "change",
+    function(e){
+
+        loadAIImage(
+            e.target.files[0]
+        );
+
+    });
+
+}
 
 
             // 支持 Ctrl + V 粘贴截图
@@ -1379,7 +1392,7 @@
             });
 
 
-            async function aiOCRRecognize(){
+            window.aiOCRRecognize = async function(){
 
                 if(!aiOCRImageBase64){
 
