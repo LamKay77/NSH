@@ -1,7 +1,32 @@
 exports.handler = async function(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+
+
+    const headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS"
+    };
+
+if(event.httpMethod === "OPTIONS"){
+
+    return {
+        statusCode:200,
+        headers:headers,
+        body:""
+    };
+
+}
+
+
+if(event.httpMethod !== "POST"){
+
+    return {
+        statusCode:405,
+        headers:headers,
+        body:"Method Not Allowed"
+    };
+
+}
 
   try {
     const { image } = JSON.parse(event.body || "{}");
@@ -41,16 +66,31 @@ exports.handler = async function(event) {
       }
     );
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(await response.json())
-    };
+return {
 
+    statusCode:200,
+
+    headers:{
+        ...headers,
+        "Content-Type":"application/json"
+    },
+
+    body:
+    JSON.stringify(data)
+
+};
+    
   } catch (e) {
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: e.message })
-    };
-  }
+
+    statusCode:500,
+
+    headers:headers,
+
+    body:
+    JSON.stringify({
+        error:e.message
+    })
+
+};
 };
