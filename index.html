@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>逆水寒 - 帮会货运收益计算器</title>
+    <style>
+        :root {
+            --bg: #f7f4ee;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --primary: #8b5e3c;
+            --primary-dark: #6e4629;
+            --primary-light: #d8be9b;
+            --gold: #c8923a;
+            --gold-gradient: linear-gradient(135deg, #d4a359 0%, #a87228 100%);
+            --gold-bg: #fef9ed;
+            --gold-border: #e6c88b;
+            --text: #2c221e;
+            --text-secondary: #7a6b5d;
+            --border: #e2d7c7;
+            --border-light: #efe8dc;
+            --danger: #b84a39;
+            --danger-bg: #fcf1f0;
+            --success: #2e7d52;
+            --success-bg: #edf7f1;
+            --info: #3b7080;
+            --info-bg: #f0f7f9;
+            --shadow-sm: 0 2px 8px rgba(62, 46, 31, 0.05);
+            --shadow-md: 0 6px 20px rgba(62, 46, 31, 0.08);
+            --shadow-lg: 0 12px 32px rgba(62, 46, 31, 0.12);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 18px;
+            --transition: 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 15% 10%, rgba(200, 146, 58, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 90%, rgba(139, 94, 60, 0.06) 0%, transparent 50%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 24px 16px 50px;
+        }
+
+        .container {
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+
+        /* ========== Header ========== */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .header .logo-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: var(--gold-gradient);
+            border-radius: 16px;
+            font-size: 28px;
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(168, 114, 40, 0.3);
+            margin-bottom: 12px;
+        }
+        .header h1 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .header .subtitle-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .header .subtitle {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+        }
+        .author-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(200, 146, 58, 0.12);
+            color: #8b5e1e;
+            border: 1px solid rgba(200, 146, 58, 0.3);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        /* ========== Cards ========== */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .card-header .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        .badge-module1 { background: linear-gradient(135deg, #4b7bec, #3867d6); }
+        .badge-module2 { background: linear-gradient(135deg, #8b5e3c, #6e4629); }
+        .badge-module3 { background: var(--gold-gradient); }
+        .badge-ocr { background: linear-gradient(135deg, #a55eea, #45aaf2); }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .card-header .hint {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        /* ========== Layout ========== */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+        @media (max-width: 860px) {
+            .two-col { grid-template-columns: 1fr; }
+            .card { padding: 18px 16px; }
+            .header h1 { font-size: 1.5rem; }
+        }
+
+        /* ========== Forms & Inputs ========== */
+        label {
+            display: block;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        input[type="number"],
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: var(--text);
+            background: #fff;
+            transition: all var(--transition);
+            outline: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(200, 146, 58, 0.15);
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            opacity: 1;
+            height: 26px;
+        }
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%238b5e3c'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+
+        /* Highlight Input */
+        .highlight-box {
+            background: var(--gold-bg);
+            border: 1.5px solid var(--gold-border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            margin-bottom: 16px;
+        }
+        .highlight-input {
+            font-weight: 700;
+            color: #8b5e1e !important;
+            font-size: 1.05rem !important;
+            border-color: var(--gold-border) !important;
+        }
+
+        /* ========== Price Table ========== */
+        .price-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9rem;
+        }
+        .price-table th {
+            text-align: left;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            padding: 8px 10px;
+            border-bottom: 2px solid var(--border-light);
+            text-transform: uppercase;
+        }
+        .price-table td {
+            padding: 6px 6px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: all var(--transition);
+        }
+        .btn-icon:hover {
+            background: var(--danger-bg);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .btn-sm {
+            padding: 7px 14px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all var(--transition);
+        }
+        .btn-sm:hover {
+            background: var(--gold-bg);
+            border-color: var(--gold);
+            color: #8b5e1e;
+        }
+        .btn-sm.primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .btn-sm.primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        /* ========== OCR Option Styling ========== */
+        .ocr-radio-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            background: #fff;
+            padding: 6px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            width: fit-content;
+        }
+        .ocr-radio-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 6px;
+            transition: all var(--transition);
+            margin-bottom: 0;
+            user-select: none;
+        }
+        .ocr-radio-label input[type="radio"] {
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        .ocr-warning-box {
+            display: none;
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #fff3cd;
+            border: 1.5px solid #ffeeba;
+            border-radius: var(--radius-sm);
+            color: #856404;
+            font-size: 0.83rem;
+            line-height: 1.5;
+        }
+
+        /* ========== Module 2: Orders ========== */
+        .order-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .order-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #fff;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-light);
+            transition: all var(--transition);
+        }
+        .order-row:hover {
+            border-color: var(--primary-light);
+        }
+        .order-row.active-order {
+            border-color: var(--gold-border);
+            background: var(--gold-bg);
+        }
+        .order-num {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 0.88rem;
+            min-width: 26px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .order-row select {
+            flex: 2;
+            min-width: 100px;
+            font-size: 0.85rem;
+            padding: 7px 24px 7px 8px;
+        }
+        .order-row .qty-input,
+        .order-row .reward-input {
+            flex: 1;
+            min-width: 50px;
+            text-align: center;
+            padding: 7px 6px;
+            font-size: 0.88rem;
+        }
+        .order-row .inline-label {
+            font-size: 0.76rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        /* Custom Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #d0c7b8;
+            border-radius: 24px;
+            transition: all var(--transition);
+        }
+        .toggle-slider::before {
+            content: "";
+            position: absolute;
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all var(--transition);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--gold);
+        }
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(18px);
+        }
+        .order-summary-mini {
+            font-size: 0.78rem;
+            min-width: 65px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* ========== Module 3: Results ========== */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        @media (max-width: 680px) {
+            .results-grid { grid-template-columns: 1fr; }
+        }
+        .result-panel {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 18px;
+            border: 1.5px solid var(--border-light);
+        }
+        .result-panel.highlight-panel {
+            border-color: var(--gold-border);
+            background: linear-gradient(135deg, #ffffff 0%, var(--gold-bg) 100%);
+            box-shadow: var(--shadow-sm);
+        }
+        .result-panel h3 {
+            font-size: 0.98rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .result-panel h3 .icon-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-gold { background: var(--gold); }
+        .dot-blue { background: var(--info); }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .result-table th, .result-table td {
+            padding: 8px 6px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .result-table th {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        .result-table th:first-child, .result-table td:first-child { text-align: left; }
+        .result-table .total-row {
+            font-weight: 700;
+            font-size: 0.92rem;
+            border-top: 2px solid var(--border);
+        }
+
+        .profit-positive { color: var(--success); font-weight: 700; }
+        .profit-negative { color: var(--danger); font-weight: 700; }
+        .big-number { font-size: 1.65rem; font-weight: 800; }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .tag-gold { background: #fef3d5; color: #8b5e1e; }
+        .tag-green { background: var(--success-bg); color: var(--success); }
+        .tag-red { background: var(--danger-bg); color: var(--danger); }
+        .tag-blue { background: var(--info-bg); color: var(--info); }
+
+        .bonus-highlight {
+            background: rgba(254, 249, 237, 0.8);
+            border: 1.5px dashed var(--gold-border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            text-align: center;
+            margin-top: 6px;
+        }
+        .bonus-highlight .bonus-amount {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #8b5e1e;
+        }
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border-light);
+            margin: 14px 0;
+        }
+        .fee-note {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+        .footer strong {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-wrapper">⚖️</div>
+            <h1>逆水寒 · 帮会货运收益计算器</h1>
+            <div class="subtitle-row">
+                <span class="subtitle">订单精准核算 & 最佳提交策略规划</span>
+                <span class="author-badge">✨ 作者：Vasuki</span>
+            </div>
+        </div>
+
+        <!-- OCR 截图文本识别导入模块 -->
+        <div class="card" id="moduleOcr">
+            <div class="card-header">
+                <span class="badge badge-ocr">📷</span>
+                <h2>OCR 截图识别文本快捷导入</h2>
+                <span class="hint">智能解析填充订单</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                <div class="ocr-radio-group">
+                    <label class="ocr-radio-label">
+                        <input type="radio" name="ocrSource" value="qq" checked> 🐧 QQ OCR 识别
+                    </label>
+                    <label class="ocr-radio-label">
+                        <input type="radio" name="ocrSource" value="wechat"> 💬 微信 OCR 识别
+                    </label>
+                </div>
+                <button class="btn-sm primary" onclick="parseAndFillOCR()">⚡ 解析并自动填充订单</button>
+            </div>
+
+            <textarea id="ocrInput" rows="5" placeholder="请将 QQ 或 微信 截图识别出来的文本粘贴到此处..."></textarea>
+            
+            <div id="ocrNotice" class="ocr-warning-box">
+                ⚠️ <strong>注意：</strong> OCR 识别受图片清晰度和文字排列影响，可能存在错别字或数字识别遗漏。<strong>解析完成后请务必人工核对下方 8 个订单！</strong>
+            </div>
+        </div>
+
+        <!-- Two-Column Layout -->
+        <div class="two-col">
+            <!-- 模块一：价格设置 -->
+            <div class="card" id="module1">
+                <div class="card-header">
+                    <span class="badge badge-module1">①</span>
+                    <h2>基础价格设置</h2>
+                </div>
+
+                <!-- 宝图残页单价 -->
+                <div class="highlight-box">
+                    <label style="color:#8b5e1e;font-weight:700;">📜 宝图残页单价（拍卖行售价）</label>
+                    <input type="number" id="treasureMapPrice" class="highlight-input" value="12000" min="0" step="1" placeholder="输入宝图残页单价">
+                    <div class="fee-note">💡 拍卖行出售自动扣除 <strong>5% 手续费</strong>（实际到手 95%）</div>
+                </div>
+
+                <!-- 道具价格表 -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <label style="margin-bottom:0;">📦 道具成本价格表（拍卖行买入价）</label>
+                    <button class="btn-sm primary" onclick="addItemRow()">＋ 添加道具</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th style="width:45%;">道具名称</th>
+                                <th style="width:40%;">单价（铜钱）</th>
+                                <th style="width:15%;text-align:center;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="priceTableBody">
+                            <!-- 动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn-sm" style="margin-top:10px;" onclick="resetDefaultItems()">🔄 恢复默认道具</button>
+            </div>
+
+            <!-- 模块二：订单配置 -->
+            <div class="card" id="module2">
+                <div class="card-header">
+                    <span class="badge badge-module2">②</span>
+                    <h2>货运订单配置</h2>
+                    <span class="hint">共 8 个订单</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+                    <span style="font-size:0.8rem;color:var(--text-secondary);">快捷操作：</span>
+                    <button class="btn-sm" onclick="toggleAllOrders(true)">✅ 全部启用</button>
+                    <button class="btn-sm" onclick="toggleAllOrders(false)">⬜ 全部禁用</button>
+                    <button class="btn-sm" onclick="enableTopOrders()">⭐ 推荐收益前5</button>
+                </div>
+                <div class="order-list" id="orderList">
+                    <!-- 动态填充 -->
+                </div>
+                <div style="margin-top:12px;font-size:0.82rem;color:var(--text-secondary);text-align:center;">
+                    已启用：<strong id="activeOrderCount" style="color:var(--primary);">0</strong> / 8 个订单
+                    &nbsp;|&nbsp; 宝箱档位：<strong id="bonusTierDisplay">—</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块三：收益计算 -->
+        <div class="card" id="module3">
+            <div class="card-header">
+                <span class="badge badge-module3">③</span>
+                <h2>收益计算结果</h2>
+                <span class="hint">实时计算更新</span>
+            </div>
+            <div class="results-grid">
+                <!-- 订单明细 -->
+                <div class="result-panel">
+                    <h3><span class="icon-dot dot-blue"></span>已启用订单明细</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="result-table">
+                            <thead>
+                                <tr>
+                                    <th>订单</th>
+                                    <th>道具</th>
+                                    <th>数量</th>
+                                    <th>成本</th>
+                                    <th>残页</th>
+                                    <th>收入</th>
+                                    <th>净收益</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailTableBody">
+                                <tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:20px;">暂无启用的订单</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="divider"></div>
+                    <table class="result-table">
+                        <tbody>
+                            <tr>
+                                <td>订单成本小计</td>
+                                <td style="text-align:right;font-weight:700;" id="subtotalCost">0</td>
+                            </tr>
+                            <tr>
+                                <td>订单收入小计（扣税）</td>
+                                <td style="text-align:right;font-weight:700;" id="subtotalIncome">0</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td>订单净收益小计</td>
+                                <td style="text-align:right;" id="subtotalProfit">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 汇总 -->
+                <div class="result-panel highlight-panel">
+                    <h3><span class="icon-dot dot-gold"></span>累计奖励 & 总收益</h3>
+                    <div class="bonus-highlight" id="bonusBox">
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:2px;">
+                            提交 <strong id="bonusCount">0</strong> 个订单档位
+                        </div>
+                        <div style="font-size:0.88rem;">🎁 普通宝箱奖励：<span class="bonus-amount" id="bonusPages">0</span> 个残页</div>
+                        <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">
+                            折合实际收入：<strong id="bonusIncome">0</strong> 铜钱
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <table class="result-table">
+                        <tbody>
+                            <tr>
+                                <td>📜 订单残页总收入</td>
+                                <td style="text-align:right;" id="totalOrderIncome">0</td>
+                            </tr>
+                            <tr>
+                                <td>🎁 宝箱奖励收入</td>
+                                <td style="text-align:right;" id="totalBonusIncome">0</td>
+                            </tr>
+                            <tr>
+                                <td>📦 道具总成本</td>
+                                <td style="text-align:right;color:var(--danger);" id="totalCost">0</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td>💰 <strong>总净收益</strong></td>
+                                <td style="text-align:right;" id="grandTotalProfit">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-top:12px;text-align:center;">
+                        <span class="tag tag-gold" id="verdictTag">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 规则提示 -->
+            <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;font-size:0.78rem;color:var(--text-secondary);align-items:center;">
+                <span>📋 宝箱提交次数奖励（仅生效一次）：</span>
+                <span class="tag tag-blue">5次 → 18残页</span>
+                <span class="tag tag-blue">6次 → 22残页</span>
+                <span class="tag tag-blue">7次 → 28残页</span>
+                <span class="tag tag-green">8次 → 35残页</span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            逆水寒帮会货运收益计算工具 &nbsp;•&nbsp; Designed & Developed by <strong>Vasuki</strong>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== 数据状态 ====================
+            let items = [
+                { id: 'item_1', name: '普通资源箱', price: 6000 },
+                { id: 'item_2', name: '如燕追风匣', price: 3000 },
+                { id: 'item_3', name: '惊鹊追风匣', price: 4500 },
+                { id: 'item_4', name: '归鸿追风匣', price: 5000 },
+                { id: 'item_5', name: '装备鉴定书', price: 11000 },
+                { id: 'item_6', name: '百炼武器鉴定书', price: 75000 },
+                { id: 'item_7', name: '兰溪解玉砂', price: 3800 },
+            ];
+            let itemIdCounter = 100;
+
+            let orders = [];
+            for (let i = 0; i < 8; i++) {
+                orders.push({
+                    id: i,
+                    itemName: items[i % items.length].name,
+                    quantity: (i + 1) * 2,
+                    rewardPages: 3 + i * 2,
+                    enabled: true,
+                });
+            }
+
+            const bonusRules = { 5: 18, 6: 22, 7: 28, 8: 35 };
+
+            // DOM 节点引用
+            const treasureMapPriceInput = document.getElementById('treasureMapPrice');
+            const priceTableBody = document.getElementById('priceTableBody');
+            const orderList = document.getElementById('orderList');
+            const activeOrderCountEl = document.getElementById('activeOrderCount');
+            const bonusTierDisplayEl = document.getElementById('bonusTierDisplay');
+            const detailTableBody = document.getElementById('detailTableBody');
+            const subtotalCostEl = document.getElementById('subtotalCost');
+            const subtotalIncomeEl = document.getElementById('subtotalIncome');
+            const subtotalProfitEl = document.getElementById('subtotalProfit');
+            const bonusCountEl = document.getElementById('bonusCount');
+            const bonusPagesEl = document.getElementById('bonusPages');
+            const bonusIncomeEl = document.getElementById('bonusIncome');
+            const totalOrderIncomeEl = document.getElementById('totalOrderIncome');
+            const totalBonusIncomeEl = document.getElementById('totalBonusIncome');
+            const totalCostEl = document.getElementById('totalCost');
+            const grandTotalProfitEl = document.getElementById('grandTotalProfit');
+            const verdictTag = document.getElementById('verdictTag');
+            const bonusBox = document.getElementById('bonusBox');
+
+            // 工具函数
+            function formatNumber(num) {
+                if (num === null || num === undefined || isNaN(num)) return '0';
+                return Math.round(num).toLocaleString('zh-CN');
+            }
+
+            function getItemPrice(itemName) {
+                const item = items.find(it => it.name === itemName);
+                return item ? item.price : 0;
+            }
+
+            function getTreasureMapPrice() {
+                const val = parseFloat(treasureMapPriceInput.value);
+                return isNaN(val) || val < 0 ? 0 : val;
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ==================== OCR 识别核心逻辑 ====================
+
+            // 修正常见 OCR 错别字与标准化道具名
+            function normalizeOCRItemName(rawStr) {
+                if (!rawStr) return items[0].name;
+                let s = rawStr.replace(/\s+/g, '');
+                
+                if (/普|賚|资源|賚源/.test(s)) return '普通资源箱';
+                if (/如燕/.test(s)) return '如燕追风匣';
+                if (/惊鹊|迫风/.test(s)) return '惊鹊追风匣';
+                if (/归鸿/.test(s)) return '归鸿追风匣';
+                if (/装备|[监鉴]定/.test(s)) return '装备鉴定书';
+                if (/百炼/.test(s)) return '百炼武器鉴定书';
+                if (/兰溪|解玉/.test(s)) return '兰溪解玉砂';
+
+                // 如果未在已知列表中找到，检查已有 items
+                const existing = items.find(it => it.name === rawStr.trim());
+                if (existing) return existing.name;
+
+                // 若属于新出现的道具，自动添加到道具列表中
+                const newName = rawStr.trim();
+                const newItem = { id: 'item_' + (++itemIdCounter), name: newName, price: 0 };
+                items.push(newItem);
+                renderPriceTableDOM();
+                return newName;
+            }
+
+            // 提取数量（优先提取 / 后的分母，或消除前导零）
+            function parseOCRQuantity(str) {
+                if (!str) return 0;
+                let clean = str.trim();
+                
+                // 情况 1: 包含 /，如 "0/24", "17/24", "/20", "600/11" -> 取斜杠后的数字
+                if (clean.includes('/')) {
+                    const parts = clean.split('/');
+                    const numMatch = parts[parts.length - 1].match(/\d+/);
+                    if (numMatch) return parseInt(numMatch[0], 10);
+                }
+
+                // 情况 2: 如 "装备监定书·6019"，60为等级，末尾19为数量；或 "012" 带前导零
+                // 移除“装备鉴定书·60”等固定干扰文字
+                clean = clean.replace(/装备[监鉴]定书·?\d*/, '');
+                const numMatch = clean.match(/\d+/);
+                if (numMatch) {
+                    return parseInt(numMatch[0], 10);
+                }
+                return 0;
+            }
+
+            // 提取残页奖励（如 "$3宝图残片"、"❤2宝图残片" -> 提取数字）
+            function parseOCRReward(str) {
+                if (!str) return 0;
+                const match = str.match(/(\d+)\s*(?:宝图|残片)?/);
+                return match ? parseInt(match[1], 10) : 0;
+            }
+
+            // 解析 QQ OCR 文本（两组横向/纵向 4 项结构）
+            function parseQQOCR(text) {
+                const lines = text.split('\n')
+                    .map(l => l.trim())
+                    .filter(l => l.length > 0);
+
+                // 过滤掉按钮与无关修饰文本：提交可得、获取、提交
+                const filtered = lines.filter(l => !/^(提交可得|获取|提交)[:：]?$/i.test(l));
+
+                const result = [];
+                // 标准 QQ 识别过滤后为 24 行：前 12 行对应 1-4 任务，后 12 行对应 5-8 任务
+                if (filtered.length >= 24) {
+                    // 第一组（1-4）
+                    const names1 = filtered.slice(0, 4);
+                    const qtys1 = filtered.slice(4, 8);
+                    const rewards1 = filtered.slice(8, 12);
+
+                    // 第二组（5-8）
+                    const names2 = filtered.slice(12, 16);
+                    const qtys2 = filtered.slice(16, 20);
+                    const rewards2 = filtered.slice(20, 24);
+
+                    for (let i = 0; i < 4; i++) {
+                        result.push({
+                            itemName: normalizeOCRItemName(names1[i]),
+                            quantity: parseOCRQuantity(qtys1[i]),
+                            rewardPages: parseOCRReward(rewards1[i])
+                        });
+                    }
+                    for (let i = 0; i < 4; i++) {
+                        result.push({
+                            itemName: normalizeOCRItemName(names2[i]),
+                            quantity: parseOCRQuantity(qtys2[i]),
+                            rewardPages: parseOCRReward(rewards2[i])
+                        });
+                    }
+                } else {
+                    alert('QQ OCR 文本行数不足，请确保完整复制了所有 8 个订单识别内容！');
+                }
+                return result;
+            }
+
+            // 解析 微信 OCR 文本（按单项线性结构）
+            function parseWeChatOCR(text) {
+                // 按 “提交可得” 关键字分段
+                const blocks = text.split(/提交可得[:：]?/i);
+                const result = [];
+
+                // 应该有 8 个 “提交可得”，形成 9 个 block
+                if (blocks.length >= 8) {
+                    for (let i = 0; i < 8; i++) {
+                        // 第 i 个订单的名称与数量在 blocks[i] 的尾部
+                        const currentBlockLines = blocks[i].split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                        
+                        // 过滤掉上一项残留的“宝图残片”、“获取”、“提交”行
+                        const nameQtyLines = currentBlockLines.filter(l => !/(宝图|残片|获取|提交)/.test(l));
+
+                        // 组合名称与数量行进行分析
+                        let combinedNameQty = nameQtyLines.join(' ');
+                        
+                        // 提取名称与数量
+                        let name = normalizeOCRItemName(combinedNameQty);
+                        let qty = parseOCRQuantity(combinedNameQty);
+
+                        // 第 i 个订单的奖励在 blocks[i+1] 的头部
+                        const nextBlockLines = blocks[i + 1].split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                        let rewardLine = nextBlockLines.find(l => /(宝图|残片|\d+)/.test(l)) || nextBlockLines[0] || '';
+                        let reward = parseOCRReward(rewardLine);
+
+                        result.push({
+                            itemName: name,
+                            quantity: qty,
+                            rewardPages: reward
+                        });
+                    }
+                } else {
+                    alert('微信 OCR 文本格式未能成功匹配，请确保复制了完整的 8 项货运订单信息！');
+                }
+                return result;
+            }
+
+            // 执行解析并填充
+            function parseAndFillOCR() {
+                const rawText = document.getElementById('ocrInput').value;
+                if (!rawText.trim()) {
+                    alert('请先粘贴 OCR 识别出的文本！');
+                    return;
+                }
+
+                const ocrType = document.querySelector('input[name="ocrSource"]:checked').value;
+                let parsedOrders = [];
+
+                if (ocrType === 'qq') {
+                    parsedOrders = parseQQOCR(rawText);
+                } else {
+                    parsedOrders = parseWeChatOCR(rawText);
+                }
+
+                if (parsedOrders && parsedOrders.length > 0) {
+                    // 填入 orders 数组
+                    parsedOrders.forEach((item, index) => {
+                        if (index < orders.length) {
+                            orders[index].itemName = item.itemName;
+                            orders[index].quantity = item.quantity;
+                            orders[index].rewardPages = item.rewardPages;
+                            orders[index].enabled = true;
+                        }
+                    });
+
+                    // 刷新界面 UI 和数据
+                    renderOrderListDOM();
+                    updateResults();
+
+                    // 显示核对提醒通知
+                    const notice = document.getElementById('ocrNotice');
+                    notice.style.display = 'block';
+                    notice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+
+            // ==================== 渲染逻辑 ====================
+            
+            function renderPriceTableDOM() {
+                priceTableBody.innerHTML = '';
+                items.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-item-id', item.id);
+                    tr.innerHTML = `
+                        <td>
+                            <input type="text" class="item-name-input" value="${escapeHtml(item.name)}" 
+                                data-item-id="${item.id}" data-field="name" placeholder="道具名称">
+                        </td>
+                        <td>
+                            <input type="number" value="${item.price}" min="0" step="1"
+                                data-item-id="${item.id}" data-field="price" placeholder="单价" style="text-align:right;">
+                        </td>
+                        <td style="text-align:center;">
+                            <button class="btn-icon" title="删除道具" data-action="delete" data-item-id="${item.id}"
+                                ${items.length <= 1 ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}>✕</button>
+                        </td>
+                    `;
+                    priceTableBody.appendChild(tr);
+                });
+
+                priceTableBody.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('input', handlePriceInput);
+                });
+                priceTableBody.querySelectorAll('button[data-action="delete"]').forEach(btn => {
+                    btn.addEventListener('click', handleDeleteItem);
+                });
+            }
+
+            function renderOrderListDOM() {
+                orderList.innerHTML = '';
+                orders.forEach((order, index) => {
+                    const div = document.createElement('div');
+                    div.className = `order-row${order.enabled ? ' active-order' : ''}`;
+                    div.setAttribute('data-order-id', order.id);
+                    div.innerHTML = `
+                        <span class="order-num">#${index + 1}</span>
+                        <select data-field="itemName" data-order-id="${order.id}">
+                            ${items.map(it => `
+                                <option value="${escapeHtml(it.name)}" ${it.name === order.itemName ? 'selected' : ''}>
+                                    ${escapeHtml(it.name)} (${formatNumber(it.price)})
+                                </option>
+                            `).join('')}
+                        </select>
+                        <span class="inline-label">需</span>
+                        <input type="number" class="qty-input" value="${order.quantity}" min="0" step="1"
+                            data-field="quantity" data-order-id="${order.id}">
+                        <span class="inline-label">个</span>
+                        <span class="inline-label">得残页</span>
+                        <input type="number" class="reward-input" value="${order.rewardPages}" min="0" step="1"
+                            data-field="rewardPages" data-order-id="${order.id}">
+                        <span class="inline-label">个</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" data-field="enabled" data-order-id="${order.id}" ${order.enabled ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="order-summary-mini"><span class="profit-positive">+0</span></span>
+                    `;
+                    orderList.appendChild(div);
+                });
+
+                orderList.querySelectorAll('select, input').forEach(el => {
+                    el.addEventListener('input', handleOrderInput);
+                    el.addEventListener('change', handleOrderInput);
+                });
+            }
+
+            function updateSelectOptionsText() {
+                const selects = orderList.querySelectorAll('select[data-field="itemName"]');
+                selects.forEach(select => {
+                    const currentVal = select.value;
+                    Array.from(select.options).forEach(opt => {
+                        const it = items.find(i => i.name === opt.value);
+                        if (it) {
+                            opt.textContent = `${it.name} (${formatNumber(it.price)})`;
+                        }
+                    });
+                    select.value = currentVal;
+                });
+            }
+
+            // ==================== 事件处理 ====================
+
+            function handlePriceInput(e) {
+                const input = e.target;
+                const itemId = input.getAttribute('data-item-id');
+                const field = input.getAttribute('data-field');
+                const item = items.find(it => it.id === itemId);
+                if (!item) return;
+
+                if (field === 'price') {
+                    const val = parseFloat(input.value);
+                    item.price = isNaN(val) || val < 0 ? 0 : val;
+                    updateSelectOptionsText();
+                    orders.forEach(o => updateSingleOrderDisplay(o.id));
+                    updateResults();
+                } else if (field === 'name') {
+                    const oldName = item.name;
+                    const newName = input.value.trim();
+                    if (newName) {
+                        item.name = newName;
+                        orders.forEach(o => { if (o.itemName === oldName) o.itemName = newName; });
+                        updateSelectOptionsText();
+                        updateResults();
+                    }
+                }
+            }
+
+            function handleDeleteItem(e) {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const itemId = btn.getAttribute('data-item-id');
+                if (items.length <= 1) return;
+                
+                const deleted = items.find(it => it.id === itemId);
+                items = items.filter(it => it.id !== itemId);
+                
+                orders.forEach(o => {
+                    if (o.itemName === deleted.name) o.itemName = items[0].name;
+                });
+
+                renderPriceTableDOM();
+                renderOrderListDOM();
+                updateResults();
+            }
+
+            function handleOrderInput(e) {
+                const el = e.target;
+                const orderId = parseInt(el.getAttribute('data-order-id'));
+                const field = el.getAttribute('data-field');
+                const order = orders.find(o => o.id === orderId);
+                if (!order) return;
+
+                if (field === 'itemName') {
+                    order.itemName = el.value;
+                } else if (field === 'quantity') {
+                    const val = parseInt(el.value);
+                    order.quantity = isNaN(val) || val < 0 ? 0 : val;
+                } else if (field === 'rewardPages') {
+                    const val = parseInt(el.value);
+                    order.rewardPages = isNaN(val) || val < 0 ? 0 : val;
+                } else if (field === 'enabled') {
+                    order.enabled = el.checked;
+                }
+
+                updateSingleOrderDisplay(orderId);
+                updateResults();
+            }
+
+            function updateSingleOrderDisplay(orderId) {
+                const order = orders.find(o => o.id === orderId);
+                if (!order) return;
+                const row = orderList.querySelector(`[data-order-id="${orderId}"]`);
+                if (!row) return;
+
+                const itemPrice = getItemPrice(order.itemName);
+                const mapPrice = getTreasureMapPrice();
+                const cost = order.quantity * itemPrice;
+                const income = order.rewardPages * mapPrice * 0.95;
+                const profit = income - cost;
+                
+                const miniSpan = row.querySelector('.order-summary-mini span');
+                if (miniSpan) {
+                    miniSpan.className = profit >= 0 ? 'profit-positive' : 'profit-negative';
+                    miniSpan.textContent = `${profit >= 0 ? '+' : ''}${formatNumber(profit)}`;
+                }
+
+                if (order.enabled) {
+                    row.classList.add('active-order');
+                } else {
+                    row.classList.remove('active-order');
+                }
+            }
+
+            function toggleAllOrders(enable) {
+                orders.forEach(o => o.enabled = enable);
+                renderOrderListDOM();
+                updateResults();
+            }
+
+            function enableTopOrders() {
+                const mapPrice = getTreasureMapPrice();
+                const scored = orders.map(o => {
+                    const cost = o.quantity * getItemPrice(o.itemName);
+                    const income = o.rewardPages * mapPrice * 0.95;
+                    return { id: o.id, profit: income - cost };
+                });
+                scored.sort((a, b) => b.profit - a.profit);
+                
+                const top5Ids = scored.slice(0, 5).map(o => o.id);
+                orders.forEach(o => o.enabled = top5Ids.includes(o.id));
+                
+                renderOrderListDOM();
+                updateResults();
+            }
+
+            // ==================== 收益计算更新 ====================
+            function updateResults() {
+                const mapPrice = getTreasureMapPrice();
+                const enabledOrders = orders.filter(o => o.enabled);
+                const activeCount = enabledOrders.length;
+
+                activeOrderCountEl.textContent = activeCount;
+                if (activeCount >= 5) {
+                    bonusTierDisplayEl.textContent = `提交${activeCount}次 → 奖励 ${bonusRules[activeCount] || 0} 残页`;
+                    bonusTierDisplayEl.style.color = '#c8923a';
+                } else {
+                    bonusTierDisplayEl.textContent = activeCount > 0 ? '未达5次，无宝箱' : '—';
+                    bonusTierDisplayEl.style.color = 'var(--text-secondary)';
+                }
+
+                let totalCost = 0;
+                let totalOrderIncomeNet = 0;
+                const detailRows = [];
+
+                enabledOrders.forEach(order => {
+                    const itemPrice = getItemPrice(order.itemName);
+                    const cost = order.quantity * itemPrice;
+                    const netIncome = order.rewardPages * mapPrice * 0.95;
+                    const profit = netIncome - cost;
+
+                    totalCost += cost;
+                    totalOrderIncomeNet += netIncome;
+
+                    detailRows.push({
+                        orderNum: orders.findIndex(o => o.id === order.id) + 1,
+                        itemName: order.itemName,
+                        quantity: order.quantity,
+                        cost: cost,
+                        rewardPages: order.rewardPages,
+                        income: netIncome,
+                        profit: profit
+                    });
+                });
+
+                let bonusPages = (activeCount >= 5 && bonusRules[activeCount]) ? bonusRules[activeCount] : 0;
+                const bonusIncomeNet = bonusPages * mapPrice * 0.95;
+                const grandTotalProfit = totalOrderIncomeNet + bonusIncomeNet - totalCost;
+
+                if (detailRows.length === 0) {
+                    detailTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:20px;">暂无启用的订单</td></tr>';
+                } else {
+                    detailTableBody.innerHTML = detailRows.map(row => `
+                        <tr>
+                            <td>#${row.orderNum}</td>
+                            <td>${escapeHtml(row.itemName)}</td>
+                            <td>${formatNumber(row.quantity)}</td>
+                            <td style="color:var(--danger);">${formatNumber(row.cost)}</td>
+                            <td>${formatNumber(row.rewardPages)}</td>
+                            <td>${formatNumber(row.income)}</td>
+                            <td class="${row.profit >= 0 ? 'profit-positive' : 'profit-negative'}">
+                                ${row.profit >= 0 ? '+' : ''}${formatNumber(row.profit)}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                subtotalCostEl.textContent = formatNumber(totalCost) + ' 铜';
+                subtotalIncomeEl.textContent = formatNumber(totalOrderIncomeNet) + ' 铜';
+                const subProfit = totalOrderIncomeNet - totalCost;
+                subtotalProfitEl.textContent = (subProfit >= 0 ? '+' : '') + formatNumber(subProfit) + ' 铜';
+                subtotalProfitEl.className = subProfit >= 0 ? 'profit-positive' : 'profit-negative';
+
+                bonusCountEl.textContent = activeCount;
+                bonusPagesEl.textContent = formatNumber(bonusPages);
+                bonusIncomeEl.textContent = formatNumber(bonusIncomeNet) + ' 铜';
+                bonusBox.style.opacity = bonusPages > 0 ? '1' : '0.6';
+
+                totalOrderIncomeEl.textContent = formatNumber(totalOrderIncomeNet) + ' 铜';
+                totalBonusIncomeEl.textContent = formatNumber(bonusIncomeNet) + ' 铜';
+                totalCostEl.textContent = formatNumber(totalCost) + ' 铜';
+                
+                grandTotalProfitEl.textContent = (grandTotalProfit >= 0 ? '+' : '') + formatNumber(grandTotalProfit) + ' 铜';
+                grandTotalProfitEl.className = (grandTotalProfit >= 0 ? 'profit-positive' : 'profit-negative') + ' big-number';
+
+                if (activeCount === 0) {
+                    verdictTag.textContent = '未开启订单'; verdictTag.className = 'tag tag-blue';
+                } else if (grandTotalProfit > 0) {
+                    verdictTag.textContent = '✅ 收益丰厚，推荐提交'; verdictTag.className = 'tag tag-green';
+                } else if (grandTotalProfit === 0) {
+                    verdictTag.textContent = '⚖️ 保本微利'; verdictTag.className = 'tag tag-gold';
+                } else {
+                    verdictTag.textContent = '⚠️ 当前方案亏损，建议调整订单'; verdictTag.className = 'tag tag-red';
+                }
+
+                orders.forEach(o => updateSingleOrderDisplay(o.id));
+            }
+
+            function addItemRow() {
+                const newItem = { id: 'item_' + (++itemIdCounter), name: '新道具' + (items.length + 1), price: 0 };
+                items.push(newItem);
+                renderPriceTableDOM();
+                renderOrderListDOM();
+                updateResults();
+                
+                const newInp = priceTableBody.querySelector(`input[data-item-id="${newItem.id}"][data-field="name"]`);
+                if (newInp) { newInp.focus(); newInp.select(); }
+            }
+
+            function resetDefaultItems() {
+                items = [
+                    { id: 'item_1', name: '普通资源箱', price: 6000 },
+                    { id: 'item_2', name: '如燕追风匣', price: 3000 },
+                    { id: 'item_3', name: '惊鹊追风匣', price: 4500 },
+                    { id: 'item_4', name: '归鸿追风匣', price: 5000 },
+                    { id: 'item_5', name: '装备鉴定书', price: 11000 },
+                    { id: 'item_6', name: '百炼武器鉴定书', price: 75000 },
+                    { id: 'item_7', name: '兰溪解玉砂', price: 3800 },
+                ];
+                orders.forEach((o, i) => o.itemName = items[i % items.length].name);
+                treasureMapPriceInput.value = 12000;
+                
+                renderPriceTableDOM();
+                renderOrderListDOM();
+                updateResults();
+            }
+
+            // 全局暴露
+            window.addItemRow = addItemRow;
+            window.resetDefaultItems = resetDefaultItems;
+            window.toggleAllOrders = toggleAllOrders;
+            window.enableTopOrders = enableTopOrders;
+            window.parseAndFillOCR = parseAndFillOCR;
+
+            // 初始化
+            treasureMapPriceInput.addEventListener('input', () => {
+                orders.forEach(o => updateSingleOrderDisplay(o.id));
+                updateResults();
+            });
+
+            renderPriceTableDOM();
+            renderOrderListDOM();
+            updateResults();
+        })();
+    </script>
+</body>
+</html>
