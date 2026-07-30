@@ -110,22 +110,42 @@ exports.handler = async function(event) {
 
                                     text:
 `
-识别这张逆水寒帮会货运截图。
+`
+你是逆水寒帮会货运OCR助手。
 
-只返回JSON。
+请识别8条订单。
+
+注意：
+
+必须从截图中的：
+1. 道具名称（请匹配：普通资源箱，如燕追风匣，惊鹊追风匣，归鸿追风匣，装备鉴定书，百炼武器鉴定书，兰溪解玉砂）
+2. 需求数量
+3. 宝图残页奖励
+
+提取。
+
+不要输出推理过程。
+
+只输出JSON。
 
 格式：
 
 [
- {
-  "itemName":"",
-  "quantity":0,
-  "rewardPages":0,
-  "confidence":0
- }
+{
+"itemName":"",
+"quantity":0,
+"rewardPages":0,
+"confidence":0
+}
 ]
 
-必须返回8条订单。
+
+quantity填写需求数量，
+不要填写已拥有数量。
+
+rewardPages填写宝图残页数量。
+
+必须8条。
 `
 
                                 }
