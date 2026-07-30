@@ -79,7 +79,7 @@ exports.handler = async function(event) {
 
                 body:JSON.stringify({
 
-                    model:"glm-4.6v-flash",
+                    model:"glm-4v-flash",
 
 
                     messages:[
