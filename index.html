@@ -836,29 +836,90 @@
             // ==================== OCR 识别核心逻辑 ====================
 
             // 修正常见 OCR 错别字与标准化道具名
-            function normalizeOCRItemName(rawStr) {
-                if (!rawStr) return items[0].name;
-                let s = rawStr.replace(/\s+/g, '');
-                
-                if (/普|賚|资源|賚源/.test(s)) return '普通资源箱';
-                if (/如燕/.test(s)) return '如燕追风匣';
-                if (/惊鹊|迫风/.test(s)) return '惊鹊追风匣';
-                if (/归鸿/.test(s)) return '归鸿追风匣';
-                if (/装备|[监鉴]定/.test(s)) return '装备鉴定书';
-                if (/百炼/.test(s)) return '百炼武器鉴定书';
-                if (/兰溪|解玉/.test(s)) return '兰溪解玉砂';
+            function normalizeOCRItemName(name){
 
-                // 如果未在已知列表中找到，检查已有 items
-                const existing = items.find(it => it.name === rawStr.trim());
-                if (existing) return existing.name;
+    if(!name)
+        return "";
 
-                // 若属于新出现的道具，自动添加到道具列表中
-                const newName = rawStr.trim();
-                const newItem = { id: 'item_' + (++itemIdCounter), name: newName, price: 0 };
-                items.push(newItem);
-                renderPriceTableDOM();
-                return newName;
+
+    const map = {
+
+
+        // 追风匣
+
+        "如燕追风匣":[
+            "知燕道风匣",
+            "知燕追风匣",
+            "如燕道风匣",
+            "如燕追风"
+        ],
+
+
+        "惊鹊追风匣":[
+            "惊鹊道风匣",
+            "惊鹤道风匣",
+            "惊鹊追风"
+        ],
+
+
+        "归鸿追风匣":[
+            "归鸿道风匣",
+            "归鸿追风"
+        ],
+
+
+        "普通资源箱":[
+            "普通资源箱",
+            "普通资源"
+        ],
+
+
+        "装备鉴定书":[
+            "装备鉴定书",
+            "装备鉴定书·60"
+        ],
+
+
+        "百炼武器鉴定书":[
+            "百炼武器鉴定书",
+            "百炼武器鉴定"
+        ],
+
+
+        "兰溪解玉砂":[
+            "兰溪·解玉砂",
+            "兰溪 解玉砂",
+            "兰溪解玉砂"
+        ]
+
+    };
+
+
+
+    for(
+        const standard in map
+    ){
+
+        for(
+            const alias of map[standard]
+        ){
+
+            if(
+                name.includes(alias)
+            ){
+
+                return standard;
+
             }
+
+        }
+
+    }
+
+
+    return name;
+
+}
 
             // 提取数量（优先提取 / 后的分母，或消除前导零）
             function parseOCRQuantity(str) {
